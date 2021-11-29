@@ -35,16 +35,44 @@ buildPythonPackage rec {
     setuptools-scm-git-archive
   ];
 
-  buildInputs = [ which sphinx ]
-    ++ lib.optional enableGhostscript ghostscript
-    ++ lib.optional stdenv.isDarwin [ Cocoa ];
+  buildInputs = [
+    which
+    sphinx
+  ] ++ lib.optional enableGhostscript [
+    ghostscript
+  ] ++ lib.optional stdenv.isDarwin [
+    Cocoa
+  ];
 
-  propagatedBuildInputs =
-    [ cycler python-dateutil numpy pyparsing tornado freetype qhull
-      kiwisolver certifi libpng mock pytz pillow ]
-    ++ lib.optionals enableGtk3 [ cairo pycairo gtk3 gobject-introspection pygobject3 ]
-    ++ lib.optionals enableTk [ tcl tk tkinter libX11 ]
-    ++ lib.optionals enableQt [ pyqt5 ];
+  propagatedBuildInputs = [
+    certifi
+    cycler
+    fonttools
+    freetype
+    kiwisolver
+    libpng
+    mock
+    numpy
+    pillow
+    pyparsing
+    python-dateutil
+    pytz
+    qhull
+    tornado
+  ] ++ lib.optionals enableGtk3 [
+    cairo
+    gobject-introspection
+    gtk3
+    pycairo
+    pygobject3
+  ] ++ lib.optionals enableTk [
+    libX11
+    tcl
+    tk
+    tkinter
+  ] ++ lib.optionals enableQt [
+    pyqt5
+  ];
 
   passthru.config = {
     directories = { basedirlist = "."; };
@@ -57,6 +85,7 @@ buildPythonPackage rec {
     };
   };
   setup_cfg = writeText "setup.cfg" (lib.generators.toINI {} passthru.config);
+
   preBuild = ''
     cp "$setup_cfg" ./setup.cfg
   '';
