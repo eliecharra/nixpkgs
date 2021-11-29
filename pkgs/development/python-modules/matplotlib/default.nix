@@ -1,7 +1,7 @@
 { lib, stdenv, fetchPypi, writeText, buildPythonPackage, isPy3k, pycairo
 , which, cycler, python-dateutil, numpy, pyparsing, sphinx, tornado, kiwisolver
 , freetype, qhull, libpng, pkg-config, mock, pytz, pygobject3, gobject-introspection
-, certifi, pillow
+, certifi, pillow, fonttools, setuptools-scm, setuptools-scm-git-archive
 , enableGhostscript ? true, ghostscript, gtk3
 , enableGtk3 ? false, cairo
 # darwin has its own "MacOSX" backend
@@ -29,7 +29,11 @@ buildPythonPackage rec {
 
   XDG_RUNTIME_DIR = "/tmp";
 
-  nativeBuildInputs = [ pkg-config ];
+  nativeBuildInputs = [
+    pkg-config
+    setuptools-scm
+    setuptools-scm-git-archive
+  ];
 
   buildInputs = [ which sphinx ]
     ++ lib.optional enableGhostscript ghostscript
@@ -74,6 +78,13 @@ buildPythonPackage rec {
       substituteInPlace src/_c_internal_utils.c \
         --replace libX11.so.6 ${libX11}/lib/libX11.so.6 \
         --replace libwayland-client.so.0 ${wayland}/lib/libwayland-client.so.0
+    '' + ''
+      # avoid matplotlib trying to download dependencies
+      echo "[libs]
+      system_freetype=true
+      system_qhull=true" > mplsetup.cfg
+      cat mplsetup.cfg
+      echo FFFFFFFFFFFFFFFFFFFFFFFFFFFFF
     '';
 
   # Matplotlib needs to be built against a specific version of freetype in
