@@ -9,6 +9,7 @@
 , python
 , pythonOlder
 , pyyaml
+, setuptools-scm
 , typing-extensions
 , typing-inspect
 }:
@@ -27,6 +28,12 @@ buildPythonPackage rec {
     sha256 = "1r4aiqpndqa75119faknsghi7zxyjrx5r6i7cb3d0liwiqrkzrvx";
   };
 
+  SETUPTOOLS_SCM_PRETEND_VERSION = version;
+
+  nativeBuildInputs = [
+    setuptools-scm
+  ];
+
   propagatedBuildInputs = [
     hypothesis
     typing-extensions
@@ -43,6 +50,9 @@ buildPythonPackage rec {
   ];
 
   preCheck = ''
+    # We don't have ufmt
+    substituteInPlace libcst/codegen/generate.py \
+      --replace 'subprocess.check_call(["ufmt", "format", fname], stdout=devnull, stderr=devnull)' 'pass'
     ${python.interpreter} -m libcst.codegen.generate visitors
     ${python.interpreter} -m libcst.codegen.generate return_types
     # Can't run all tests due to circular dependency on hypothesmith -> libcst
