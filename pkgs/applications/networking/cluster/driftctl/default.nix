@@ -2,7 +2,7 @@
 
 buildGoModule rec {
   pname = "driftctl";
-  version = "0.17";
+  version = "0.17.0";
 
   src = fetchFromGitHub {
     owner = "cloudskiff";
