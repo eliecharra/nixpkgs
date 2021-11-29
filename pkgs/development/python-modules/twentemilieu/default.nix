@@ -1,18 +1,21 @@
 { lib
-, buildPythonPackage
-, pythonOlder
-, fetchFromGitHub
 , aiohttp
-, yarl
 , aresponses
+, buildPythonPackage
+, fetchFromGitHub
+, poetry-core
 , pytest-asyncio
 , pytestCheckHook
+, pythonOlder
+, yarl
 }:
 
 buildPythonPackage rec {
   pname = "twentemilieu";
   version = "0.4.2";
-  disabled = pythonOlder "3.7";
+  format = "pyproject";
+
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "frenck";
@@ -20,6 +23,10 @@ buildPythonPackage rec {
     rev = "v${version}";
     sha256 = "1lf31ldbrsmxhbrcg284pwpvjfmwnssv3gqwd5vm2hvd9lwqn6ii";
   };
+
+  nativeBuildInputs = [
+    poetry-core
+  ];
 
   propagatedBuildInputs = [
     aiohttp
@@ -32,7 +39,16 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  pythonImportsCheck = [ "twentemilieu" ];
+  postPatch = ''
+    # Upstream doesn't set a version for the pyproject.toml
+    substituteInPlace pyproject.toml \
+      --replace "0.0.0" "${version}" \
+      --replace "--cov" ""
+  '';
+
+  pythonImportsCheck = [
+    "twentemilieu"
+  ];
 
   meta = with lib; {
     description = "Python client for Twente Milieu";
