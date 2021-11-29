@@ -14,19 +14,6 @@ buildGoModule rec {
   vendorSha256 = "sha256-aaJ5fpS+BiVq1K8OxN+/CBD96wy3flGDhch8O2ACIh8=";
 
   postUnpack = ''
-    # Without this, tests fail to locate aws/3.19.0.json
-    for prefix in /                        \
-                  /pkg                     \
-                  /pkg/analyser            \
-                  /pkg/alerter             \
-                  /pkg/remote              \
-                  /pkg/middlewares         \
-                  /pkg/cmd/scan/output     \
-                  /pkg/iac/terraform/state \
-                  /pkg/iac/supplier ; do
-      mkdir -p ./source/$prefix/github.com/cloudskiff
-      ln -sf $PWD/source ./source/$prefix/github.com/cloudskiff/driftctl
-    done
 
     # Disable check for latest version and telemetry, which are opt-out.
     # Making it out-in is quite a job, and why bother?
@@ -41,10 +28,6 @@ buildGoModule rec {
     # that would work, we here we go old-school.
     find -name version.go | xargs sed -i -e 's/"dev"/"${version}"/'
     find -name build.go | xargs sed -i -e 's/"dev"/"release"/'
-
-    # Fix the tests that checks for dev-dev.
-    find -name version_test.go | xargs sed -i -e 's/"dev-dev/"${version}/'
-    find -name driftctl_test.go | xargs sed -i -e 's/"dev-dev/"${version}/'
   '';
 
   meta = with lib; {
